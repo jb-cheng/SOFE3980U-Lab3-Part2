@@ -16,6 +16,7 @@ import org.junit.runner.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
 import org.springframework.boot.test.mock.mockito.*;
+import org.springframework.context.annotation.Description;
 import org.springframework.test.context.junit4.*;
 
 import static org.hamcrest.Matchers.containsString;
@@ -30,31 +31,93 @@ public class BinaryControllerTest {
     @Autowired
     private MockMvc mvc;
 
-   
+    // Test for default GET request
     @Test
     public void getDefault() throws Exception {
         this.mvc.perform(get("/"))//.andDo(print())
             .andExpect(status().isOk())
             .andExpect(view().name("calculator"))
-			.andExpect(model().attribute("operand1", ""))
-			.andExpect(model().attribute("operand1Focused", false));
+            .andExpect(model().attribute("operand1", ""))
+            .andExpect(model().attribute("operand1Focused", false));
     }
-	
-	    @Test
+    
+    // Test for GET request with parameter
+    @Test
     public void getParameter() throws Exception {
         this.mvc.perform(get("/").param("operand1","111"))
             .andExpect(status().isOk())
             .andExpect(view().name("calculator"))
-			.andExpect(model().attribute("operand1", "111"))
-			.andExpect(model().attribute("operand1Focused", true));
+            .andExpect(model().attribute("operand1", "111"))
+            .andExpect(model().attribute("operand1Focused", true));
     }
-	@Test
-	    public void postParameter() throws Exception {
+
+    // Test for POST request with parameters for addition
+    @Test
+    public void postParameter() throws Exception {
         this.mvc.perform(post("/").param("operand1","111").param("operator","+").param("operand2","111"))//.andDo(print())
             .andExpect(status().isOk())
             .andExpect(view().name("result"))
-			.andExpect(model().attribute("result", "1110"))
-			.andExpect(model().attribute("operand1", "111"));
+            .andExpect(model().attribute("result", "1110"))
+            .andExpect(model().attribute("operand1", "111"));
     }
 
+    // Test for POST request with parameters for multiplication
+    @Test
+    public void testMultiplication() throws Exception {
+        this.mvc.perform(post("/").param("operand1","111").param("operator","*").param("operand2","101"))//.andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(view().name("result"))
+            .andExpect(model().attribute("result", "100011"));
+    }
+
+    // Test for POST request with parameters for OR operation
+    @Test
+    public void testOr() throws Exception {
+        this.mvc.perform(post("/").param("operand1","111").param("operator","|").param("operand2","101"))//.andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(view().name("result"))
+            .andExpect(model().attribute("result", "111"));
+    }
+
+    // Test for POST request with parameters for AND operation
+    @Test
+    public void testAnd() throws Exception {
+        this.mvc.perform(post("/").param("operand1","111").param("operator","&").param("operand2","101"))//.andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(view().name("result"))
+            .andExpect(model().attribute("result", "101"));
+    }
+
+    // Test for addition with both operands empty
+    @Test
+    public void testEmptyOperandsAddition() throws Exception {
+        this.mvc.perform(post("/").param("operand1","").param("operator","+").param("operand2",""))
+            .andExpect(status().isOk())
+            .andExpect(view().name("result"))
+            .andExpect(model().attribute("result", "0"));
+    }
+
+    // Test for multiplication with both operands empty
+    @Test
+    public void testEmptyOperandsMultiplication() throws Exception {
+        this.mvc.perform(post("/").param("operand1","").param("operator","*").param("operand2",""))
+            .andExpect(status().isOk())
+            .andExpect(model().attribute("result", "0"));
+    }
+
+    // Test for OR operation with both operands empty
+    @Test
+    public void testEmptyOperandsOr() throws Exception {
+        this.mvc.perform(post("/").param("operand1","").param("operator","|").param("operand2",""))
+            .andExpect(status().isOk())
+            .andExpect(model().attribute("result", "0"));
+    }
+
+    // Test for AND operation with both operands empty
+    @Test
+    public void testEmptyOperandsAnd() throws Exception {
+        this.mvc.perform(post("/").param("operand1","").param("operator","&").param("operand2",""))
+            .andExpect(status().isOk())
+            .andExpect(model().attribute("result", "0"));
+    }
 }
