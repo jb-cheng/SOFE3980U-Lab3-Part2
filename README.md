@@ -1,1 +1,1 @@
-pipeline commit
+maven project commit
